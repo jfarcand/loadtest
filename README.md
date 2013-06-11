@@ -1,4 +1,4 @@
-### NettoSphere Load Test Service
+### NettoSphere WebSocket Load Test Service
 A NettoSphere Server that deploy resources for load test/performance testing
 
 Just do:
