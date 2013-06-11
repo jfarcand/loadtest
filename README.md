@@ -8,3 +8,11 @@ Just do:
 % unzip atmosphere-loadtest-distribution.zip
 % chmod a+x bin/nettosphere
 % ./nettosphere
+```
+
+The point your load driver to
+
+```
+/echo/{id}    // echo test
+/simple/{id}  // SimpleBroadcaster Test
+/default/{id} // DefaultBroadcaster Test
