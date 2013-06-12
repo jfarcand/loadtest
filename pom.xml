@@ -17,5 +17,6 @@
     <modules>
         <module>nettosphere</module>
         <module>war</module>
+        <module>wasyncLoader</module>
     </modules>
 </project>
