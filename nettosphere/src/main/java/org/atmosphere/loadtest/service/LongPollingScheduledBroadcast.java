@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @AtmosphereHandlerService(path = "/longpolling/{id}",
         broadcasterCache = UUIDBroadcasterCache.class,
@@ -24,16 +25,29 @@ public class LongPollingScheduledBroadcast extends AbstractReflectorAtmosphereHa
 
     final static ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
+    final static AtomicInteger clients = new AtomicInteger(0);
+
     static {
         scheduler.scheduleAtFixedRate(new Runnable() {
 
             private int message = 0;
+            private boolean waitToStart = true;
 
             @Override
             public void run() {
-                MetaBroadcaster.getDefault().broadcastTo("/longpolling/*", message++);
+                if (clients.get() >= 50) {
+                    if (waitToStart) {
+                        waitToStart = false;
+                        try {
+                            Thread.sleep(5000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                        }
+                    }
+                    MetaBroadcaster.getDefault().broadcastTo("/longpolling/*", String.valueOf(message++));
+                }
             }
-        }, 20 * 1000, 100, TimeUnit.MILLISECONDS);
+        }, 5, 100, TimeUnit.MILLISECONDS);
     }
 
 
@@ -41,6 +55,7 @@ public class LongPollingScheduledBroadcast extends AbstractReflectorAtmosphereHa
     public void onRequest(final AtmosphereResource resource) throws IOException {
         if (resource.getRequest().getMethod().equalsIgnoreCase("GET")) {
             resource.suspend();
+            clients.incrementAndGet();
         }
     }
 }
