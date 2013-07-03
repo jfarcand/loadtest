@@ -1,6 +1,5 @@
 package org.atmosphere.loadtest.service;
 
-import org.atmosphere.cache.UUIDBroadcasterCache;
 import org.atmosphere.client.TrackMessageSizeInterceptor;
 import org.atmosphere.config.service.AtmosphereHandlerService;
 import org.atmosphere.cpr.AtmosphereResource;
@@ -15,8 +14,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@AtmosphereHandlerService(path = "/longpolling/{id}",
-        broadcasterCache = UUIDBroadcasterCache.class,
+@AtmosphereHandlerService(path = "/longpolling/test",
         interceptors = TrackMessageSizeInterceptor.class)
 public class LongPollingScheduledBroadcast extends AbstractReflectorAtmosphereHandler {
 
@@ -56,5 +54,9 @@ public class LongPollingScheduledBroadcast extends AbstractReflectorAtmosphereHa
             resource.suspend();
             clients.incrementAndGet();
         }
+    }
+
+    @Override
+    public void destroy(){
     }
 }

@@ -16,11 +16,9 @@
 package org.atmosphere.wasync.loader;
 
 import com.ning.http.client.AsyncHttpClient;
-import org.atmosphere.wasync.Client;
 import org.atmosphere.wasync.ClientFactory;
 import org.atmosphere.wasync.Function;
 import org.atmosphere.wasync.Request;
-import org.atmosphere.wasync.RequestBuilder;
 import org.atmosphere.wasync.Socket;
 import org.atmosphere.wasync.impl.AtmosphereClient;
 import org.atmosphere.wasync.impl.AtmosphereRequest;
@@ -29,20 +27,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 
-/**
- * A utility class that can be used to load a WebSocket enabled Server
- *
- * @author jeanfrancois Arcand
- */
-public class WebSocketLoader {
+public class LongPolling10Driver {
 
     public static void main(String[] s) throws InterruptedException, IOException {
 
         if (s.length == 0) {
-            s = new String[]{"50", "0", "http://127.0.0.1:8080/longpolling"};
+            s = new String[]{"1", "0", "http://127.0.0.1:8080/longpolling/test"};
         }
 
         final int clientNum = Integer.valueOf(s[0]);
@@ -60,7 +51,7 @@ public class WebSocketLoader {
 
         AtmosphereClient client = ClientFactory.getDefault().newClient(AtmosphereClient.class);
 
-        long clientCount = l.getCount()/2;
+        long clientCount = l.getCount() / 2;
 
         Socket[] sockets = new Socket[clientNum];
         final CountDownLatch messageLostAllowed = new CountDownLatch(1);
@@ -78,10 +69,13 @@ public class WebSocketLoader {
 
                         @Override
                         public void on(String s) {
-                            System.out.println(s + "<=>" + mCount);
+
+                            if (l.contains(s)) {
+                                System.out.println("=======DUPLICATE: " + s);
+                            }
+
                             l.add(s);
                             if (Integer.valueOf(s) != mCount) {
-                                System.out.println("Messsage LOST: " + l);
                                 messageLostAllowed.countDown();
                             }
                             mCount++;
@@ -98,7 +92,7 @@ public class WebSocketLoader {
             request.method(Request.METHOD.GET);
             request.transport(Request.TRANSPORT.LONG_POLLING);
             request.trackMessageLength(true);
-            sockets[i].open(request.uri(url + "/" + i).build());
+            sockets[i].open(request.uri(url).build());
         }
 
         l.await(5, TimeUnit.SECONDS);
@@ -109,3 +103,4 @@ public class WebSocketLoader {
     }
 
 }
+
