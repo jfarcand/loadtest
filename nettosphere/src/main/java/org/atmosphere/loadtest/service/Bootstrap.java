@@ -32,7 +32,7 @@ public class Bootstrap {
         Config.Builder b = new Config.Builder();
         b.resource(Echo.class)
                 .port(8080)
-                .host("127.0.0.1")
+                .host("0.0.0.0")
                 .build();
         Nettosphere s = new Nettosphere.Builder().config(b.build()).build();
         s.start();
