@@ -15,6 +15,7 @@
  */
 package org.atmosphere.loadtest.service;
 
+import org.atmosphere.cache.UUIDBroadcasterCache;
 import org.atmosphere.nettosphere.Config;
 import org.atmosphere.nettosphere.Nettosphere;
 import org.slf4j.Logger;
@@ -33,6 +34,8 @@ public class Bootstrap {
         b.resource(Echo.class)
                 .port(8080)
                 .host("0.0.0.0")
+                .supportChunking(true)
+                .broadcasterCache(UUIDBroadcasterCache.class)
                 .build();
         Nettosphere s = new Nettosphere.Builder().config(b.build()).build();
         s.start();

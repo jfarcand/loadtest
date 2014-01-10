@@ -16,8 +16,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @AtmosphereHandlerService(path = "/longpolling/{id}",
-        broadcasterCache = UUIDBroadcasterCache.class,
-        interceptors = TrackMessageSizeInterceptor.class)
+        interceptors = TrackMessageSizeInterceptor.class, broadcasterCache = UUIDBroadcasterCache.class)
 public class LongPollingScheduledBroadcast extends AbstractReflectorAtmosphereHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(LongPollingScheduledBroadcast.class);

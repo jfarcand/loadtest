@@ -15,22 +15,24 @@
  */
 package org.atmosphere.loadtest.service;
 
+import org.atmosphere.cache.UUIDBroadcasterCache;
 import org.atmosphere.config.service.AtmosphereHandlerService;
 import org.atmosphere.cpr.AtmosphereResource;
-import org.atmosphere.cpr.AtmosphereResourceFactory;
-import org.atmosphere.handler.AtmosphereHandlerAdapter;
+import org.atmosphere.handler.AbstractReflectorAtmosphereHandler;
+import org.atmosphere.util.SimpleBroadcaster;
 
 import java.io.IOException;
 
-@AtmosphereHandlerService(path = "/echohttp/{id}")
-public class HttpEcho extends AtmosphereHandlerAdapter{
+@AtmosphereHandlerService(path = "/echohttp/{id}", broadcaster= SimpleBroadcaster.class, broadcasterCache = UUIDBroadcasterCache.class)
+public class HttpEcho extends AbstractReflectorAtmosphereHandler{
+    private static volatile int count=0;
 
     @Override
     public void onRequest(AtmosphereResource resource) throws IOException {
         if (resource.getRequest().getMethod().equalsIgnoreCase("GET")) {
             resource.suspend();
         } else {
-            AtmosphereResourceFactory.getDefault().find(resource.uuid()).write(resource.getRequest().getReader().readLine());
+            resource.getBroadcaster().broadcast("message" + ++count + "-");
         }
     }
 }

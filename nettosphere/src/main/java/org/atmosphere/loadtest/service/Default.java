@@ -1,15 +1,17 @@
 package org.atmosphere.loadtest.service;
 
+import org.atmosphere.cache.UUIDBroadcasterCache;
 import org.atmosphere.config.service.Singleton;
 import org.atmosphere.config.service.WebSocketHandlerService;
+import org.atmosphere.cpr.DefaultBroadcaster;
 import org.atmosphere.websocket.WebSocket;
 import org.atmosphere.websocket.WebSocketHandlerAdapter;
 
 import java.io.IOException;
 
 @Singleton
-@WebSocketHandlerService(path = "/default/{id}")
-public class DefaultBroadcast extends WebSocketHandlerAdapter {
+@WebSocketHandlerService(path = "/default/{id}", broadcaster = DefaultBroadcaster.class, broadcasterCache = UUIDBroadcasterCache.class)
+public class Default extends WebSocketHandlerAdapter {
 
     @Override
     public void onTextMessage(WebSocket webSocket, String data) throws IOException {
