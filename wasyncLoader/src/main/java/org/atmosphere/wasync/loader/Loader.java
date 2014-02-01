@@ -15,6 +15,9 @@
  */
 package org.atmosphere.wasync.loader;
 
+import com.ning.http.client.AsyncHttpClient;
+import com.ning.http.client.AsyncHttpClientConfig;
+import com.ning.http.client.providers.netty.NettyAsyncHttpProviderConfig;
 import org.atmosphere.wasync.ClientFactory;
 import org.atmosphere.wasync.Event;
 import org.atmosphere.wasync.Function;
@@ -42,7 +45,7 @@ public class Loader {
     public static void main(String[] s) throws InterruptedException, IOException {
 
         if (s.length == 0) {
-            s = new String[]{"1", "2", "1", "http://127.0.0.1:8080/echohttp/test"};
+            s = new String[]{"1", "1", "1", "http://127.0.0.1:8080/default/test"};
         }
 
         int run = Integer.valueOf(s[0]);
@@ -55,6 +58,16 @@ public class Loader {
         System.out.println("Number of Message: " + messageNum);
         System.out.println("Number of run: " + run);
         long count = 0;
+
+
+        AsyncHttpClientConfig.Builder b = new AsyncHttpClientConfig.Builder();
+        b.setFollowRedirects(true).setIdleConnectionTimeoutInMs(-1).setRequestTimeoutInMs(-1);
+
+        NettyAsyncHttpProviderConfig nettyConfig = new NettyAsyncHttpProviderConfig();
+
+        nettyConfig.addProperty("child.tcpNoDelay", "true");
+        nettyConfig.addProperty("child.keepAlive", "true");
+        final AsyncHttpClient c = new AsyncHttpClient(b.setAsyncHttpClientProviderConfig(nettyConfig).build());
 
         for (int r = 0; r < run; r++) {
 
@@ -69,8 +82,9 @@ public class Loader {
                 AtmosphereClient client = ClientFactory.getDefault().newClient(AtmosphereClient.class);
                 AtmosphereRequest.AtmosphereRequestBuilder request = client.newRequestBuilder();
                 request.method(Request.METHOD.GET).uri(url);
-                request.transport(Request.TRANSPORT.LONG_POLLING);
-                sockets[i] = client.create(client.newOptionsBuilder().runtimeShared(true).reconnect(true).build())
+                request.transport(Request.TRANSPORT.WEBSOCKET);
+                request.header("X-wakeUpNIO", "true");
+                sockets[i] = client.create(client.newOptionsBuilder().runtimeShared(true).runtime(c).reconnect(true).build())
                         .on(Event.OPEN, new Function<String>() {
                             @Override
                             public void on(String statusCode) {

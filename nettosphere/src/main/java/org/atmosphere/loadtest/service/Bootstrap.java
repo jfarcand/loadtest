@@ -34,7 +34,7 @@ public class Bootstrap {
         b.resource(Echo.class)
                 .port(8080)
                 .host("0.0.0.0")
-                .supportChunking(true)
+                //.supportChunking(false)
                 .broadcasterCache(UUIDBroadcasterCache.class)
                 .build();
         Nettosphere s = new Nettosphere.Builder().config(b.build()).build();
